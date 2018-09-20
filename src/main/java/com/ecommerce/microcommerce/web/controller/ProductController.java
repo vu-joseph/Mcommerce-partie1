@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.json.MappingJacksonValue;
 import org.springframework.web.bind.annotation.*;
@@ -118,6 +119,19 @@ public class ProductController {
         SimpleBeanPropertyFilter monFiltre = SimpleBeanPropertyFilter.serializeAllExcept("prixAchat");
         FilterProvider listDeNosFiltres = new SimpleFilterProvider().addFilter("monFiltreDynamique", monFiltre);
         MappingJacksonValue produitsFiltres = new MappingJacksonValue(hmap);
+        produitsFiltres.setFilters(listDeNosFiltres);
+
+        return produitsFiltres;
+    }
+
+    @GetMapping(value = "/TrierProduits")
+    public MappingJacksonValue trierProduitsParOrdreAlphabetique() {
+
+        Sort sort = new Sort(new Sort.Order(Sort.Direction.ASC,"nom"));
+        Iterable<Product> produits = productDao.findAll(sort);
+        SimpleBeanPropertyFilter monFiltre = SimpleBeanPropertyFilter.serializeAll();
+        FilterProvider listDeNosFiltres = new SimpleFilterProvider().addFilter("monFiltreDynamique", monFiltre);
+        MappingJacksonValue produitsFiltres = new MappingJacksonValue(produits);
         produitsFiltres.setFilters(listDeNosFiltres);
 
         return produitsFiltres;
