@@ -16,6 +16,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
 import java.net.URI;
+import java.util.HashMap;
 import java.util.List;
 
 
@@ -103,6 +104,23 @@ public class ProductController {
         return productDao.chercherUnProduitCher(400);
     }
 
+    @GetMapping(value = "/AdminProduits")
+    public MappingJacksonValue calculerMargeProduit() {
 
+        HashMap<Product,Integer> hmap = new HashMap<Product,Integer>();
+
+        List<Product> produitsList = productDao.findAll();
+        for (Product product : produitsList) {
+            int calculerMarge = product.getPrix() - product.getPrixAchat();
+            hmap.put(product,calculerMarge);
+        }
+
+        SimpleBeanPropertyFilter monFiltre = SimpleBeanPropertyFilter.serializeAllExcept("prixAchat");
+        FilterProvider listDeNosFiltres = new SimpleFilterProvider().addFilter("monFiltreDynamique", monFiltre);
+        MappingJacksonValue produitsFiltres = new MappingJacksonValue(hmap);
+        produitsFiltres.setFilters(listDeNosFiltres);
+
+        return produitsFiltres;
+    }
 
 }
